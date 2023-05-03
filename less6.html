@@ -1,0 +1,196 @@
+<html>
+	<body>
+		<h1>Загрузчик картинок</h1>
+		<div class="formBlock">
+			<h2>Для показа картинок, заполните поля ниже</h2>
+			<div class="imgForm">
+				<div class="labelNumber">
+					<label for="number">Номер страницы</label>
+					<input type="text" id="number">
+				</div>
+				<div class="labelLimit">
+					<label for="limit">Лимит</label>
+					<input type="text" id="limit">
+				</div>
+				<button class="request" id="request">Запрос</button>
+			</div>
+		</div>
+		<div class="imgItem"></div>
+	</body>
+	
+	
+	<script>
+	const imgItem = document.querySelector('.imgItem');
+	let number;
+	let limit;
+	const btnRequest = document.querySelector('#request');
+	//проверяем локальное хранилище, если есть массив картинок - выводим их
+	if (localStorage.getItem('imgItem')){
+		img(JSON.parse(localStorage.getItem('imgItem')));
+	}
+
+//вешаем клик на кнопку
+btnRequest.addEventListener("click", function(){
+	// получаем значения страницы и лимита
+	number = document.querySelector('#number').value;
+	limit = document.querySelector('#limit').value;
+// попытался решить задачу, используя promise
+// Создаем promise
+const numberPromise = new Promise((resolve, reject) => {
+	//если номер страницы от 1 и до 10, переходим к then с новым условием
+  if ((number >= 1) && (number <= 10)) {
+    resolve();
+  } else {
+	  //если номер вне диапазона - проверим лимит и выведев в зависимости от условия разные ошибки
+  if ((limit >= 1) && (limit <= 10)){
+    reject({
+		message: "Число"
+	  });
+	  }else{
+	    reject({
+		message: "Число и Лимит"
+	  });
+	}
+  }
+});
+
+// Выполняем promise
+numberPromise
+	.then((result) => {
+    //создадим новую проверку в новом промисе
+	return new Promise((resolve, reject) => {
+      if ((limit >= 1) && (limit <= 10) ) {
+		  //Все хорошо, формируем запрос к сайту и оформляем
+		  resolve();
+		  fetch(`https://picsum.photos/v2/list?page=${number}&limit=${limit}`)
+  .then((response) => { return response.json(); })
+  .then((data) => { 
+  // обработаем полученные картинки 
+	img(data);
+	// сохраним массив картинок локально, чтобы их открыть в будущем
+	localStorage.setItem('imgItem', JSON.stringify(data));
+  //console.log(data); 
+  })
+  .catch(() => { console.log('error') });
+        
+      } else {
+		  // если лимит вне диапазона - подготовим сообщение для вывода
+        reject({
+			message: "Лимит"
+        });
+      }
+    });
+  })
+  
+.catch((error) => {
+	// выводим все ошибки, и дописываем к ним общую фразу
+    console.log(error.message, 'вне диапазона от 1 до 10');
+	imgItem.innerHTML = `<div class="error">${error.message} вне диапазона от 1 до 10</div>`;
+    return error.message;
+  })
+  
+  
+	})
+	
+	//обработчик картинок
+function img(data){
+  let Item='';
+  	for (let key in data) {
+		Item += `<img src="${data[key]['download_url']}" height="300">`;
+	}
+  
+  imgItem.innerHTML = Item;
+}	
+	
+	</script>
+	
+	
+	<style>
+	h1 {
+    text-align: center;
+    font-size: 48px;
+	color:rebeccapurple;
+}
+.imgItem img{
+	padding:10px;
+	border-radius: 30px;
+	animation-duration: 1s;
+	animation-name: in;
+}
+.formBlock{
+	text-align: center;
+    padding: 20px;
+    background: rebeccapurple;
+    color: white;
+    font-size: 28px;
+    border-radius: 20px;
+	display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+}
+.imgForm{
+    width: 450px;
+    height: 200px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-wrap: wrap;
+}
+#limit, #number{
+    width: 50%;
+    height: 30px;
+    border-radius: 20px;
+    border: none;
+	padding: 15px;
+}
+.labelNumber, .labelLimit{
+	width: 100%;
+	text-align: right;
+}
+
+#request {
+	border: none;
+	cursor: pointer;
+	margin: 10px;
+	padding: 10px 15px;
+	color: black;
+    background: white;
+    transition: 0.3s;
+    border-radius: 10px;
+}
+
+#request:hover {
+	background: #fb3131;
+	transform: scale(1.05);
+}
+.imgItem{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.error{
+    border-radius: 20px;
+    background: red;
+    padding: 25px;
+    color: white;
+    text-align: center;
+    margin: 10px 0;
+	animation-duration: 1s;
+	animation-name: in;
+    font-size: 24px;
+}
+
+@keyframes in {
+  from {
+    opacity: 0%;
+  }
+
+  to {
+    opacity: 100%;
+  }
+}
+	</style>
+	
+	
+</html>

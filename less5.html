@@ -1,0 +1,64 @@
+<html>
+	<body>
+		<h1>Получение списка задач</h1>
+		<label for="id">Введите Ваш id:</label>
+		<input id="id" type="text" size="50">
+		<button class="j-btn">Получить список задач</button>
+		<div class="tasks">
+		</div>
+	</body>
+	<script>
+		const btn = document.querySelector('.j-btn');
+		const Id = document.querySelector('#id');
+		const tasks = document.querySelector('.tasks');
+
+		btn.addEventListener('click', () => {
+			fetch('https://jsonplaceholder.typicode.com/users/'+Id.value+'/todos')
+			.then((response) => {
+			const result = response.json();
+			return result;
+		})
+		.then((data) => {
+			console.log(data);
+			let list='';  
+			if (data.length == 0){
+				console.log('пользователь не найден');
+				list='<div style="color:red">Пользователь не найден</div>';
+			}else{
+				list +="<h2>Список задач:</h2><ol>";
+				for (let key in data) {
+				let listtitle = data[key]["title"];
+				let status = data[key]["completed"];
+				if (status) {
+					list += `<li style="color:red; text-decoration: line-through">${listtitle}</li>`;
+				} else {
+					list += `<li>${listtitle}</li>`;
+				}
+			}
+			list +="</ol>";   
+		}
+			tasks.innerHTML=list;
+		})
+		.catch(() => { console.log('error') });
+		});
+	</script>
+
+	<style>
+	.j-btn {
+		border: none;
+		cursor: pointer;
+		margin: 10px;
+		padding: 10px 15px;
+		color: white;
+		background: black;
+		transition: 0.3s;
+	}
+
+	.j-btn:hover {
+		background: #315efb;
+		transform: scale(1.05);
+	}
+	</style>
+
+
+ </html>
