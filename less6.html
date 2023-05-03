@@ -44,11 +44,11 @@ const numberPromise = new Promise((resolve, reject) => {
 	  //если номер вне диапазона - проверим лимит и выведев в зависимости от условия разные ошибки
   if ((limit >= 1) && (limit <= 10)){
     reject({
-		message: "Число"
+		message: "Номер страницы"
 	  });
 	  }else{
 	    reject({
-		message: "Число и Лимит"
+		message: "Номер страницы и Лимит"
 	  });
 	}
   }
